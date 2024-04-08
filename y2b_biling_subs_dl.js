@@ -2,9 +2,9 @@
 // @name         Youtube Bilingual Subtitles Download
 // @name:zh-CN   Youtube 双语字幕下载
 // @namespace    https://github.com/FLZeng/Y2B_Biling_Subs_DL
-// @version      2024-04-08
+// @version      2024-04-08-3
 // @description  YouTube bilingual subtitles with download button.
-// @description:zh-CN   Youtube 双语字幕下载。
+// @description:zh-CN   将 Youtube 默认生成的英文字幕替换为中英双语字幕，并在侧边栏加入双语、中文、英文三种字幕 SRT 文件的下载按钮。
 // @author       FLZeng
 // @match        *://www.youtube.com/*
 // @match        *://m.youtube.com/*
@@ -13,6 +13,8 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @license      MIT
 // @grant        none
+// @downloadURL https://update.greasyfork.org/scripts/491956/Youtube%20%E5%8F%8C%E8%AF%AD%E5%AD%97%E5%B9%95%E4%B8%8B%E8%BD%BD.user.js
+// @updateURL https://update.greasyfork.org/scripts/491956/Youtube%20%E5%8F%8C%E8%AF%AD%E5%AD%97%E5%B9%95%E4%B8%8B%E8%BD%BD.meta.js
 // ==/UserScript==
 
 
@@ -62,7 +64,7 @@ function GenerateSubsList(events) {
       end: startMs + durationMs,
       text: text
     };
-    
+
     subs_list.push(last_item);
   }
 
@@ -167,8 +169,9 @@ function GenerateSRTString(subs_list) {
 
 // 保存字幕按钮
 function GenerateSaveSubButton(events, lang) {
-  if (document.getElementById('btn_save_subs_' + lang)) {
-    return;
+  const btn = document.getElementById('btn_save_subs_' + lang);
+  if (btn) {
+    btn.remove();
   }
 
   const lang_dict = {'en': '英文', 'zh': '中文', 'biling': '双语'};
@@ -235,8 +238,8 @@ function FixEventDuration(events) {
 
 function HandleSubsResponse(response) {
   // 检测浏览器首选语言，如果没有，设置为英语
-  let localeLang = navigator.language.split('-')[0] || 'en'; // 跟随 YouTube 页面所用语言
-  // localeLang = 'zh';  // 取消注释此行以在此处定义您希望的语言
+  // let localeLang = navigator.language.split('-')[0] || 'en'; // 跟随 YouTube 页面所用语言
+  let localeLang = 'zh';  // 取消注释此行以在此处定义您希望的语言
 
   let xhr = new XMLHttpRequest(); // 创建新的 XMLHttpRequest
   // 清除 xhr 请求参数中的 '&tlang=...'
@@ -314,6 +317,13 @@ function HandleSubsResponse(response) {
   return response;
 }
 
+function ClickSubBtn() {
+  var btn = document.querySelector('.ytp-chrome-controls .ytp-right-controls .ytp-subtitles-button');
+  if (btn && btn.getAttribute('aria-pressed') !== true) {
+    btn.click();
+  }
+}
+
 // Hook 字幕请求
 function AjaxHookSubs() {
   ah.proxy({
@@ -324,12 +334,15 @@ function AjaxHookSubs() {
       // 如果请求的 URL 包含 '/api/timedtext' 并且没有 '&translate_h00ked'，则为原始的字幕请求
       if (response.config.url.includes('/api/timedtext') &&
           response.config.url.includes('lang=en') &&
-            !response.config.url.includes('&translate_h00ked')) {
+          response.headers["content-type"].includes('application/json') &&
+          !response.config.url.includes('&translate_h00ked')) {
           response = HandleSubsResponse(response);
       }
       handler.resolve(response); // 处理响应
     }
   });
+
+  setTimeout(ClickSubBtn, 1500);
 }
 
 /*
