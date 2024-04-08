@@ -1,16 +1,17 @@
 // ==UserScript==
-// @name         Youtube bilingual subtitles download
+// @name         Youtube Bilingual Subtitles Download
 // @name:zh-CN   Youtube 双语字幕下载
 // @namespace    https://github.com/FLZeng/Y2B_Biling_Subs_DL
-// @version      2024-04-02
+// @version      2024-04-08
 // @description  YouTube bilingual subtitles with download button.
 // @description:zh-CN   Youtube 双语字幕下载。
-// @author       Sai
+// @author       FLZeng
 // @match        *://www.youtube.com/*
 // @match        *://m.youtube.com/*
 // @require      https://unpkg.com/ajax-hook@latest/dist/ajaxhook.min.js
 // @run-at       document-start
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @license      MIT
 // @grant        none
 // ==/UserScript==
 
